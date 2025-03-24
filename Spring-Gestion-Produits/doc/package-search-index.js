@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.charlenry.produits"},{"l":"com.charlenry.produits.dto"},{"l":"com.charlenry.produits.entities"},{"l":"com.charlenry.produits.repos"},{"l":"com.charlenry.produits.restcontrollers"},{"l":"com.charlenry.produits.security"},{"l":"com.charlenry.produits.service"}];updateSearchResults();

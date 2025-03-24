@@ -1,0 +1,9 @@
+thead{
+  height: 3rem;
+  vertical-align: middle;
+}
+
+td, th {
+  vertical-align: middle !important;
+}
+

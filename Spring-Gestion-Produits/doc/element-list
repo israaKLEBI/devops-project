@@ -1,0 +1,7 @@
+com.charlenry.produits
+com.charlenry.produits.dto
+com.charlenry.produits.entities
+com.charlenry.produits.repos
+com.charlenry.produits.restcontrollers
+com.charlenry.produits.security
+com.charlenry.produits.service
