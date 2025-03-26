@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: isra113/devops:latest
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backendp
+    networks:
+      - app-network
+
+ backendp:
+    image: isra113/backendp:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+
+  backendu:
+    image: isra113/backendu:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mydb
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
