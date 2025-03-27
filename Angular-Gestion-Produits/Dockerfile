@@ -1,8 +1,9 @@
 FROM node:18-alpine AS build
+RUN npm install -g @angular/cli
 WORKDIR /app
 COPY . .
-RUN npm install -g @angular/cli
-RUN npm run build -- --prod
+RUN npm install
+RUN npm run build -- --configuration=production
 
 
 
