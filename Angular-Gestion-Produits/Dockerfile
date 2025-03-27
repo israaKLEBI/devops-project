@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN npm install
 RUN npm run build -- --configuration=production
-FROM nginx:latest
+
 
 
 EXPOSE 4200
