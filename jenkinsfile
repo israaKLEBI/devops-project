@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'https://hub.docker.com/repository/docker/isra113/devops'  // Change to your registry
+        DOCKER_USER='isra113'
+        DOCKER_PASS='Aloulou123'
+        FRONTEND_IMAGE = 'frontend-app'
+        BACKEND_IMAGE1 = 'backendp-app'
+        BACKEND_IMAGE2 = 'backendu-app'
+        //SONAR_PROJECT_KEY = 'jenkins-cicd'
+        //SONAR_HOST_URL = 'http://localhost:9000'
+        //SONAR_TOKEN = credentials('sonartoken')
+        DOCKER_TAG = 'latest'
+        REMOTE_USER = "ec2-user"
+        REMOTE_HOST = "13.218.171.13"
+        REMOTE_DIR  = "/home/ec2-user/devops/"
+    }
+    tools{
+        maven 'maven'
+       
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url:'https://github.com/israaKLEBI/devops-project.git'
+            }
+        }
+
+       /* stage('SonarQube Analysis') {
+            steps {
+                script {
+                    //withSonarQubeEnv('SonarQube') {
+                       dir('Angular-Gestion-Produits'){
+                        //sh 'mvn compile'
+                        //sh 'mvn test'
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'
+                        }
+                    //}
+                }
+            }
+        } */
+        
+       /* stage('Unit Tests') {
+            steps {
+                dir('backend') {
+                    sh 'mvn test'
+                }
+            }
+        } */
+         stage('Build Docker Images') {
+            steps {
+                dir('Angular-Gestion-Produits') {
+                    sh "docker build -t ${FRONTEND_IMAGE}:${DOCKER_TAG} ."
+                }
+                dir('Spring-Gestion-Produits') {
+                    sh "docker build -t ${BACKEND_IMAGE1}:${DOCKER_TAG} ."
+                }
+                dir('Spring-Gestion-Utilisateurs') {
+                    sh "docker build -t ${BACKEND_IMAGE2}:${DOCKER_TAG} ."
+                }
+            }
+        }
+       
+        stage('Push to Docker Hub') {
+            steps {
+                script{
+                   sh ' echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin'
+                   sh ' docker tag ${FRONTEND_IMAGE}:${DOCKER_TAG} isra113/devops'
+                   sh ' docker push isra113/devops'
+                   sh 'docker tag ${BACKEND_IMAGE1}:${DOCKER_TAG} isra113/backendp'
+                   sh ' docker push isra113/backendp'
+                   sh 'docker tag ${BACKEND_IMAGE2}:${DOCKER_TAG} isra113/backendu'
+                   sh ' docker push isra113/backendu'
+                   
+                    }
+            }
+        }
+        
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                script{
+                    sshagent(credentials:['ssh-secret']) {
+                         sh """
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
+                            cd ${REMOTE_DIR}
+                            docker-compose pull
+                            docker-compose up -d --remove-orphans
+                            docker system prune   
+                            EOF 
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}
